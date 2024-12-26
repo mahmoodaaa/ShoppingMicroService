@@ -5,6 +5,7 @@ import com.microservice.cart.model.dto.requset.UpdateCartReqDTO;
 import com.microservice.cart.model.dto.response.CartResponseDTO;
 import com.microservice.cart.model.entity.CartItem;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -17,7 +18,8 @@ public interface CartService {
     public CartResponseDTO getCartById(String cartId) ;
     public List<CartResponseDTO> getAllCarts() ;
     public void hardDeleteCart(String cartId);
-    public Page<CartResponseDTO> getAllCartsPaginated(int page, int size);
+    public CartResponseDTO softDeleteCart(String cartId);
+    public Page<CartResponseDTO> getAllCartsPaginated(int page, int size,String sortBy);
 
 
 

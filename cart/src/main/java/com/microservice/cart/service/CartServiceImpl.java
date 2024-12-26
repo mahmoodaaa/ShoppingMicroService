@@ -14,9 +14,7 @@ import com.microservice.cart.proxy.ItemProxy;
 import com.microservice.cart.repository.CartRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -74,7 +72,9 @@ public class CartServiceImpl implements CartService {
         Cart savedCart = cartRepository.save(cart);
 
         // Fetch item details for the response
-        List<String> itemIds = items.stream().map(CartItem::getId).collect(Collectors.toList());
+        List<String> itemIds = items.stream()
+                .map(CartItem::getId)
+                .collect(Collectors.toList());
         ResponseEntity<List<CartItemResponseDTO>> response = itemProxy.getItemsByIds(itemIds);
 
         if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null) {
@@ -230,7 +230,9 @@ public class CartServiceImpl implements CartService {
                 .collect(Collectors.toList());
     }
     private List<CartItemResponseDTO> fetchItemDetails(List<CartItem> items) {
-        List<String> itemIds = items.stream().map(CartItem::getId).collect(Collectors.toList());
+        List<String> itemIds = items.stream()
+                .map(CartItem::getId)
+                .collect(Collectors.toList());
 
         ResponseEntity<List<CartItemResponseDTO>> response = itemProxy.getItemsByIds(itemIds);
         if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null) {
@@ -248,13 +250,36 @@ public class CartServiceImpl implements CartService {
         Cart save = cartRepository.save(cart);
         return this.cartMapper.toResponse(save);
     }
+    public Page<CartResponseDTO> getAllCartsPaginated(int page, int size,String sortBy) {
 
-    public Page<CartResponseDTO> getAllCartsPaginated(int page, int size) {
-        Pageable pageable = PageRequest.of(page,size);
-        Page<Cart>itemPage = cartRepository.findAllByCartStatus(CartStatus.ACTIVE,pageable);
-        return itemPage.map(cartMapper::toResponse);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
+
+
+        Page<Cart> paginatedCarts = cartRepository.findAll(pageable);
+
+        // Map each cart entity to CartResponseDTO with item details
+        List<CartResponseDTO> cartResponses = paginatedCarts.getContent().stream()
+                .map(cart -> {
+              List<String> itemIds = cart.getItemList().stream().map(CartItem::getId).collect(Collectors.toList());
+
+                    // Fetch item details for all items in the cart
+             ResponseEntity<List<CartItemResponseDTO>> response = itemProxy.getItemsByIds(itemIds);
+                if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null) {
+                        throw new RecordNotFoundExciption("Failed to fetch item details from Item Service");
+                    }
+
+               List<CartItemResponseDTO> itemDetails = response.getBody();
+
+                    return cartMapper.toResponse(cart, itemDetails);
+                })
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(cartResponses, pageable, paginatedCarts.getTotalElements());
     }
-}
+    }
+
+
+
 
 
 

@@ -6,6 +6,7 @@ import com.microservice.cart.model.dto.requset.CartReqDTO;
 import com.microservice.cart.model.dto.requset.UpdateCartReqDTO;
 import com.microservice.cart.model.dto.response.CartResponseDTO;
 import com.microservice.cart.model.entity.CartItem;
+import com.microservice.cart.service.CartService;
 import com.microservice.cart.service.CartServiceImpl;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +22,7 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/carts")
 public class CartController {
     @Autowired
-    private CartServiceImpl cartService;
+    private CartService cartService;
 
     @PostMapping("/add-cart")
     public ResponseEntity<CartResponseDTO> createCart(String userId) {
@@ -72,8 +73,9 @@ public class CartController {
     @GetMapping("/paginated")
     public ResponseEntity<Page<CartResponseDTO>> getAllCartsPaginated(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size){
-        return ResponseEntity.ok(cartService.getAllCartsPaginated(page,size));
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy ){
+        return ResponseEntity.ok(cartService.getAllCartsPaginated(page,size,sortBy));
     }
 
 

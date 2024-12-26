@@ -16,6 +16,7 @@ public interface CartRepository extends MongoRepository<Cart,String> {
     Page<Cart> findAllByCartStatus(CartStatus status, Pageable pageable);
     Optional<Cart> findByIdAndCartStatus(String id, CartStatus cartStatus);
     List<Cart> findByUserIdAndCartStatus(String userId, CartStatus cartStatus);
+    Page<Cart> findAll(Pageable pageable);
 
 
 

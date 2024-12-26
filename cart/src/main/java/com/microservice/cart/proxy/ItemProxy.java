@@ -7,9 +7,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@FeignClient(name = "Item-SERVICE"  ,path = "/item")
+@FeignClient(name = "ITEM-SERVICE"  ,path = "/api/items")
 public interface ItemProxy {
-    @GetMapping("item/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<CartItemResponseDTO> getItemById(@PathVariable String id);
     @PostMapping("/fetch-items")
     public ResponseEntity<List<CartItemResponseDTO>> getItemsByIds(@RequestBody  List<String> itemIds);

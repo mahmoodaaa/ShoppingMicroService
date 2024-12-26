@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class UpdateCartReqDTO {
 
-    @NotBlank(message = "Item ID cannot be blank")
+
     private String cartItemId;
 
     @Min(value = 1, message = "Quantity must be at least 1")
